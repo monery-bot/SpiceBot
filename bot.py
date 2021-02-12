@@ -3,6 +3,8 @@ import chatter
 
 client = discord.Client()
 f = { }
+slurs =  [ ]
+prefix = [ ]
 
 @client.event
 async def on_ready():
@@ -11,7 +13,6 @@ async def on_ready():
 @client.event
 async def on_message(message):
     text = message.content
-    slurs = [ ] # Included any blacklisted words here, in a list or a tuple. 
     if not str(message.guild.id) in f:
         f[str(message.guild.id)] = chatter.Chatter(str(message.guild.id))
     if message.author == client.user:
@@ -23,11 +24,12 @@ async def on_message(message):
             await message.channel.send(f[str(message.guild.id)].respond(text.strip(";")))
         except IndexError:
             await message.channel.send("Woah woah, slow down! Nothing has been said since I entered. I only record messages as they are sent, so if none have been recorded I'll have nothing to say! Type \";help\" for more info.")
-    elif text.startswith(">") or text.startswith(".") or text.startswith("!"): # add any additional blocked prefixes to this list.
-        return
     else:
         for word in slurs:
             if word in text.lower():
+                return
+        for string in prefix:
+            if text.startswith(string):
                 return
         print(text)
         if "@here" in text or "@everyone" in text or "<@!" in text:
